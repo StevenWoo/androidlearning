@@ -1,6 +1,9 @@
 package com.tackable.foobar.geoquiz.app;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static com.tackable.foobar.geoquiz.app.CheatActivity.EXTRA_ANSWER_SHOWN;
+
 //android:orientation="vertical" in layout permanently sets orientation
 public class QuizActivity extends ActionBarActivity {
 
@@ -38,7 +44,7 @@ public class QuizActivity extends ActionBarActivity {
         if( data == null ){
             return;
         }
-        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
+        mIsCheater = data.getBooleanExtra(EXTRA_ANSWER_SHOWN, false);
 
     }
 
@@ -86,12 +92,19 @@ public class QuizActivity extends ActionBarActivity {
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
     }
 
+    @TargetApi(11)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_quiz);
+
         Log.d(TAG, "test onCreate() log");
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = getActionBar();
+            actionBar.setSubtitle("hello subtitle");
+        }
 
         mQuestionTextView = (TextView)findViewById(R.id.question_text_view);
         mTrueButton = (Button)findViewById(R.id.true_button);
