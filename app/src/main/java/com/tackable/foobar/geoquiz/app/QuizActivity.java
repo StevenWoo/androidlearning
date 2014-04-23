@@ -1,5 +1,6 @@
 package com.tackable.foobar.geoquiz.app;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,10 +15,13 @@ public class QuizActivity extends ActionBarActivity {
 
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "Index";
+    private static final String EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true";
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
     private Button mPreviousButton;
+    private Button mCheatButton;
+    private boolean mIsCheater;
     private TextView mQuestionTextView;
 
     private TrueFalse[] mQuestionBank = new TrueFalse[] {
@@ -28,6 +32,15 @@ public class QuizActivity extends ActionBarActivity {
       new TrueFalse(R.string.question_asia, true),
     };
     private int mCurrentIndex = 0;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if( data == null ){
+            return;
+        }
+        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
+
+    }
 
     public void onStart(){
         super.onStart();
@@ -50,6 +63,7 @@ public class QuizActivity extends ActionBarActivity {
         Log.d(TAG, "onDestroy()");
     }
 
+
     private void updateQuestion(){
 //        Log.d(TAG, "Logging updateQuestion() for question #" + mCurrentIndex, new Exception());
         int question = mQuestionBank[mCurrentIndex].getQuestion();
@@ -59,11 +73,15 @@ public class QuizActivity extends ActionBarActivity {
     private void checkAnswer(boolean userPressedTrue){
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isTrueQuestion();
         int messageResId = 0;
-        if( userPressedTrue == answerIsTrue ){
-            messageResId = R.string.correct_toast;
+        if( mIsCheater ){
+            messageResId = R.string.judgement_toast;
         }
-        else{
-            messageResId = R.string.incorrect_toast;
+        else {
+            if (userPressedTrue == answerIsTrue) {
+                messageResId = R.string.correct_toast;
+            } else {
+                messageResId = R.string.incorrect_toast;
+            }
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
     }
@@ -79,6 +97,7 @@ public class QuizActivity extends ActionBarActivity {
         mTrueButton = (Button)findViewById(R.id.true_button);
        // mTrueButton = (Button)findViewById(R.id.question_text_view);
         mFalseButton = (Button)findViewById(R.id.false_button);
+        mCheatButton = (Button)findViewById(R.id.cheat_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +119,7 @@ public class QuizActivity extends ActionBarActivity {
             public void onClick(View v){
                 Log.v("next click", "in on click");
                 mCurrentIndex = (mCurrentIndex + 1)% mQuestionBank.length;
+                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -121,10 +141,22 @@ public class QuizActivity extends ActionBarActivity {
         mQuestionTextView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Log.v("text view click", "in on click");
+                Log.v(TAG, "in on click");
                 mCurrentIndex = (mCurrentIndex + 1)% mQuestionBank.length;
                 updateQuestion();
 
+            }
+        });
+
+        mCheatButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Log.v(TAG, "onClick() for mCheatButton");
+                Intent i = new Intent(
+                        QuizActivity.this, CheatActivity.class);
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isTrueQuestion();
+                i.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
+                startActivityForResult(i, 0);
             }
         });
 
