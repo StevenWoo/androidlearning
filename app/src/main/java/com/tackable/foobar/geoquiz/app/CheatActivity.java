@@ -2,6 +2,7 @@ package com.tackable.foobar.geoquiz.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +17,7 @@ public class CheatActivity extends Activity{
     private boolean mAnswerIsTrue;
     private TextView mAnswerTextView;
     private Button mShowAnswer;
+    private TextView mVersionTextView;
 
     private void setAnswerShownResult(boolean isAnswerShown){
         Intent data = new Intent();
@@ -31,6 +33,8 @@ public class CheatActivity extends Activity{
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
 
         mAnswerTextView = (TextView)findViewById(R.id.answerTextView);
+        mVersionTextView = (TextView)findViewById(R.id.versionTextView);
+        mVersionTextView.setText(Build.VERSION.CODENAME + " " +  Build.VERSION.RELEASE);
         mShowAnswer = (Button)findViewById(R.id.showAnswerButton);
         mShowAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
